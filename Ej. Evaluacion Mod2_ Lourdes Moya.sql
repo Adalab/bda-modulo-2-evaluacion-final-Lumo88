@@ -69,9 +69,45 @@ SELECT  rating AS "Clasificación", COUNT(title) AS "Ctd Total"
 	GROUP BY rating;
     
     
-/* 10. Encuentra la cantidad total de películas alquiladas por cada cliente y muestra el ID del cliente, su
-		nombre y apellido junto con la cantidad de películas alquiladas*/
+-- 10. Encuentra la cantidad total de películas alquiladas por cada cliente y muestra el ID del cliente, su nombre y apellido junto con la cantidad de películas alquiladas.
+		-- uso un INNER JOIN entre tablas para poder conseguir peliculas por cliente.
+        -- USO COUNT para el total de peliculas, junto con su GROUP BY para mostrarla por clientes.
+        
+SELECT  c.customer_id AS "Nº Cliente", c.first_name AS "Nombre", c.last_name AS "Apellido", COUNT(r.rental_id) AS "Total peliculas"
+	FROM customer AS c
+    INNER JOIN rental AS r
+		ON c.customer_id = r.customer_id
+	GROUP BY c.customer_id, c.first_name, c.last_name;
     
+    
+-- 11. Encuentra la cantidad total de películas alquiladas por categoría y muestra el nombre de la categoría junto con el recuento de alquileres.
+	-- Para encontrar peliculas alquiladas y el nombre de la categoría tengo que unir: RENTAL, INVENTORY, FILM, FILM_CATEGORY y CATEGORY.
+		-- Cuando ya esté todo unido hago el count y el group by.
+    
+SELECT c.name AS "Nombre categoría", COUNT(r.rental_id) AS "Total Pelic."
+	FROM rental AS r
+    INNER JOIN inventory AS i
+		ON r.inventory_id = i.inventory_id
+	INNER JOIN film AS f
+		ON i.film_id = f.film_id
+	INNER JOIN film_category AS fc
+		ON f.film_id = fc.film_id
+	INNER JOIN category AS c
+		ON fc.category_id = c.category_id
+	GROUP BY c.name;
 
+
+-- 12. Encuentra el promedio de duración de las películas para cada clasificación de la tabla film y muestra la clasificación junto con el promedio de duración.
+
+SELECT AVG(length) AS "Prom. Dur.", rating AS "Clasificación"
+	FROM film
+    GROUP BY rating;
+
+
+-- 13. Encuentra el nombre y apellido de los actores que aparecen en la película con title "Indian Love".
+
+
+
+    
     
     
