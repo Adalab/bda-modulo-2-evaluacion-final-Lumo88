@@ -181,7 +181,57 @@ SELECT a.first_name AS "Nombre", a.last_name AS "Apellido", COUNT(fa.film_id) AS
 		FROM film
         WHERE rating ="R" AND length >120;
         
--- 20.  
+-- 20.  Encuentra las categorías de películas que tienen un promedio de duración superior a 120 minutos y muestra el nombre de la categoría junto con el promedio de duración.
+
+	SELECT c.name AS "Categoría", AVG(f.length) AS "Promedio Duración"
+		FROM category AS c
+        INNER JOIN film_category AS fc
+			ON c.category_id = fc.category_id
+		INNER JOIN film AS f
+			ON fc.film_id = f.film_id
+		GROUP BY c.name
+		HAVING AVG(f.length)> 120;
+            
+-- 21. Encuentra los actores que han actuado en al menos 5 películas y muestra el nombre del actor junto con la cantidad de películas en las que han actuado.
+
+SELECT CONCAT(a.first_name," ", a.last_name) AS "Actor", COUNT(fa.film_id) AS "Pelis actuadas"
+	FROM film_actor AS fa
+	INNER JOIN actor AS a
+		ON fa.actor_id = a.actor_id
+    GROUP BY a.first_name,a.last_name
+    HAVING COUNT(fa.film_id)>=5;
+    
+/* 22.Encuentra el título de todas las películas que fueron alquiladas por más de 5 días. Utiliza una
+	subconsulta para encontrar los rental_ids con una duración superior a 5 días y luego selecciona las
+	películas correspondientes.*/
+    
+-- 	DATEDIFF(return_date, rental_date) usamos esta función para la subconsulta.
+    
+    SELECT DISTINCT title AS "Nombre película"
+		FROM film AS f
+		INNER JOIN inventory AS i
+			ON F.film_id = i.film_id
+		INNER JOIN rental AS r
+			ON i.inventory_id = r.inventory_id
+		WHERE r.rental_id IN (SELECT rental_id
+								FROM rental
+								WHERE  DATEDIFF(return_date, rental_date) > 5);
+                                 
+                                 
+/* 23. Encuentra el nombre y apellido de los actores que no han actuado en ninguna película de la categoría
+"Horror". Utiliza una subconsulta para encontrar los actores que han actuado en películas de la
+categoría "Horror" y luego exclúyelos de la lista de actores.*/
+
+-- 24. Encuentra el título de las películas que son comedias y tienen una duración mayor a 180 minutos en la tabla film.
+
+SELECT title, length
+	FROM film
+    INNER JOIN
+		WHERE length > 180; -- consulta condición
+        
+SELECT category_id
+	FROM category
+    WHERE name = "Comedy"; -- id de comedia
     
     
     
