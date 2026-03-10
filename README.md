@@ -21,7 +21,7 @@ A continuación, se muestra una muestra de la lógica aplicada en retos de mayor
 
 <pre>
       
-SELECT DISTINCT a.first_name AS "Nombre", a.last_name AS "Apellido" --  ,fa.actor_id comprobación
+SELECT DISTINCT a.first_name AS "Nombre", a.last_name AS "Apellido"
 	FROM actor AS a
     INNER JOIN film_actor AS fa
 		ON a.actor_id = fa.actor_id
