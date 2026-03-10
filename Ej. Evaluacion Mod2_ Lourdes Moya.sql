@@ -19,7 +19,7 @@ SELECT title AS "Nombre película"
 
 
 -- 3. Encuentra el título y la descripción de todas las películas que contengan la palabra "amazing" en su descripción.
-	-- usamos LIKE para la búsqueda de la condición, % a cada lado de la palabra para que incluya todas las opciones
+	-- uso LIKE para la búsqueda de la condición, % a cada lado de la palabra para que incluya todas las opciones
     
 SELECT title AS "Nombre película", description AS "Descripción"
 	FROM film
@@ -83,6 +83,7 @@ SELECT  c.customer_id AS "Nº Cliente", c.first_name AS "Nombre", c.last_name AS
 -- 11. Encuentra la cantidad total de películas alquiladas por categoría y muestra el nombre de la categoría junto con el recuento de alquileres.
 	-- Para encontrar peliculas alquiladas y el nombre de la categoría tengo que unir: RENTAL, INVENTORY, FILM, FILM_CATEGORY y CATEGORY.
 		-- Cuando ya esté todo unido hago el count y el group by.
+		
     
 SELECT c.name AS "Nombre categoría", COUNT(r.rental_id) AS "Total Pelic."
 	FROM rental AS r
@@ -99,35 +100,30 @@ SELECT c.name AS "Nombre categoría", COUNT(r.rental_id) AS "Total Pelic."
 
 -- 12. Encuentra el promedio de duración de las películas para cada clasificación de la tabla film y muestra la clasificación junto con el promedio de duración.
 	-- Uso GROUP BY para mostrar el promedio por clasificación.
+    -- Uso Round para acortar decimales.
 
-SELECT AVG(length) AS "Prom. Dur.", rating AS "Clasificación"
+SELECT ROUND(AVG(length), 2) AS "Prom. Dur.", rating AS "Clasificación"
 	FROM film
     GROUP BY rating;
 
 
 -- 13. Encuentra el nombre y apellido de los actores que aparecen en la película con title "Indian Love".
  
-    SELECT DISTINCT a.first_name AS "Nombre" , a.last_name AS "Apellido"
+    SELECT a.first_name AS "Nombre" , a.last_name AS "Apellido"
 	FROM actor AS a
 	INNER JOIN film_actor AS fa
 		ON a.actor_id = fa.actor_id
 	INNER JOIN film AS f
 		ON fa.film_id = f.film_id
-	WHERE a.actor_id IN (SELECT actor_id										-- saco las ids de los actores de esas peliculas										
-							FROM film_actor AS fa
-							INNER JOIN film AS f
-								ON fa.film_id= f.film_id
-							WHERE fa.film_id = (SELECT film_id					-- saco las ids de las peliculas con el titulo indian love
-													FROM film
-													WHERE title LIKE ("%Indian Love%"))
-						);
+	WHERE f.title = "Indian Love";
     
+ 
 -- 14. Muestra el título de todas las películas que contengan la palabra "dog" o "cat" en su descripción.
 	-- USO regexp para simplificar código en lugar del LIKE.
     
 SELECT title AS "Titulo película"
-	FROM film
-	WHERE title REGEXP 'dog|cat';
+	FROM film AS f
+	WHERE f.description REGEXP 'dog|cat';
     
     
 -- 15. Hay algún actor o actriz que no aparezca en ninguna película en la tabla film_actor
@@ -167,7 +163,7 @@ SELECT COUNT(fa.film_id), fa.actor_id
 	GROUP BY fa.actor_id
     HAVING COUNT(fa.film_id) > 10;
     
-    -- consulta final
+    -- QUERY FINAL__
 SELECT a.first_name AS "Nombre", a.last_name AS "Apellido", COUNT(fa.film_id) AS "Nº peliculas"
 	FROM film_actor AS fa
     INNER JOIN actor AS a
@@ -183,7 +179,7 @@ SELECT a.first_name AS "Nombre", a.last_name AS "Apellido", COUNT(fa.film_id) AS
         
 -- 20.  Encuentra las categorías de películas que tienen un promedio de duración superior a 120 minutos y muestra el nombre de la categoría junto con el promedio de duración.
 
-	SELECT c.name AS "Categoría", AVG(f.length) AS "Promedio Duración"
+	SELECT c.name AS "Categoría", ROUND(AVG(f.length), 2) AS "Promedio Duración"
 		FROM category AS c
         INNER JOIN film_category AS fc
 			ON c.category_id = fc.category_id
@@ -227,30 +223,31 @@ SELECT category_id
 	FROM category
     WHERE name = "Horror"; -- id de horror
     
-    -- saco las id de peliculas de terror
+    -- saco las id de peliculas de horror
 SELECT fc.film_id
 	FROM film_category AS fc
 	INNER JOIN category AS c
     WHERE fc.category_id = (SELECT category_id
 								FROM category
 								WHERE name = "Horror"); -- id de horror)
-                            
-	-- unifico la consulta con las subconsultas. DISTINCT para no sacar nombres repetidos.
-SELECT DISTINCT a.first_name AS "Nombre", a.last_name AS "Apellido", a.actor_id
+														
+	-- QUERY FINAL _unifico la consulta con las subconsultas. DISTINCT para no sacar nombres repetidos.
+SELECT DISTINCT a.first_name AS "Nombre", a.last_name AS "Apellido" --  ,fa.actor_id comprobación
 	FROM actor AS a
     INNER JOIN film_actor AS fa
 		ON a.actor_id = fa.actor_id
-	WHERE fa.film_id NOT IN (SELECT fc.film_id
-									FROM film_category AS fc
-									INNER JOIN category AS c
-									WHERE fc.category_id = (SELECT category_id
-																FROM category
-																WHERE name = "Horror"));
-    
+	WHERE fa.actor_id NOT IN (SELECT DISTINCT fa.actor_id
+									FROM film_actor AS fa
+									WHERE fa.film_id IN (SELECT fc.film_id
+															FROM film_category AS fc
+															INNER JOIN category AS c
+															WHERE fc.category_id = (SELECT category_id
+																						FROM category
+																						WHERE name = "Horror"))); 
 
 -- 24. Encuentra el título de las películas que son comedias y tienen una duración mayor a 180 minutos en la tabla film.
 
-	-- querys previas -- 
+	-- queries previas -- 
 SELECT title, length
 	FROM film
 	WHERE length > 180; -- consulta condición mayor a 180 minutos
@@ -266,4 +263,4 @@ SELECT title, length
 		ON f.film_id = fc.film_id
 	WHERE f.length > 180 AND fc.category_id = (SELECT category_id
 													FROM category
-													WHERE name = "Comedy"); -- consulta condición
+													WHERE name = "Comedy"); 
