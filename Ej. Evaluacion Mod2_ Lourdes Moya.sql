@@ -129,6 +129,59 @@ SELECT title AS "Titulo película"
 	FROM film
 	WHERE title REGEXP 'dog|cat';
     
+    
+-- 15. Hay algún actor o actriz que no aparezca en ninguna película en la tabla film_actor
+	-- Uso LEFT JOIN para que me devuelva NULL en el campo actor_id que usaré de filtro.
+    
+SELECT a.first_name AS "Nombre", a.last_name AS "Apellido"
+	FROM actor AS a
+	LEFT JOIN film_actor AS fa
+		ON a.actor_id = fa.actor_id
+	WHERE fa.film_id IS NULL;
 
+-- 16. Encuentra el título de todas las películas que fueron lanzadas entre el año 2005 y 2010.
+
+SELECT title AS "Nombre película"
+	FROM film
+	WHERE release_year BETWEEN 2005 AND 2010;
+
+
+-- 17. Encuentra el título de todas las películas que son de la misma categoría que "Family".
+    -- realizado un count en categorias (69 peliculas) y cuadra con el resultado final.
+    
+SELECT f.title AS "Nombre película"
+	FROM film AS f
+    INNER JOIN film_category AS fc
+		ON f.film_id = fc.film_id
+	INNER JOIN category AS c
+		ON c.category_id = fc.category_id
+	WHERE fc.category_id = (SELECT category_id
+									FROM category
+									WHERE name = "Family");
+                                    
+-- 18. Muestra el nombre y apellido de los actores que aparecen en más de 10 películas.
+
+	-- saco en la tabla film_actor los actores con más peliculas
+SELECT COUNT(fa.film_id), fa.actor_id
+	FROM film_actor AS fa
+	GROUP BY fa.actor_id
+    HAVING COUNT(fa.film_id) > 10;
+    
+    -- consulta final
+SELECT a.first_name AS "Nombre", a.last_name AS "Apellido", COUNT(fa.film_id) AS "Nº peliculas"
+	FROM film_actor AS fa
+    INNER JOIN actor AS a
+		ON a.actor_id = fa.actor_id
+	GROUP BY a.first_name, a.last_name
+    HAVING COUNT(fa.film_id) > 10;  
+    
+-- 19. Encuentra el título de todas las películas que son "R" y tienen una duración mayor a 2 horas en la tabla film.
+    
+    SELECT title AS "Nombre película"    -- , rating, length esto es de comprobación.
+		FROM film
+        WHERE rating ="R" AND length >120;
+        
+-- 20.  
+    
     
     
