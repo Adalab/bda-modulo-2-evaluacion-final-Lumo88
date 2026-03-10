@@ -98,6 +98,7 @@ SELECT c.name AS "Nombre categoría", COUNT(r.rental_id) AS "Total Pelic."
 
 
 -- 12. Encuentra el promedio de duración de las películas para cada clasificación de la tabla film y muestra la clasificación junto con el promedio de duración.
+	-- Uso GROUP BY para mostrar el promedio por clasificación.
 
 SELECT AVG(length) AS "Prom. Dur.", rating AS "Clasificación"
 	FROM film
@@ -105,9 +106,29 @@ SELECT AVG(length) AS "Prom. Dur.", rating AS "Clasificación"
 
 
 -- 13. Encuentra el nombre y apellido de los actores que aparecen en la película con title "Indian Love".
-
-
-
+ 
+    SELECT DISTINCT a.first_name AS "Nombre" , a.last_name AS "Apellido"
+	FROM actor AS a
+	INNER JOIN film_actor AS fa
+		ON a.actor_id = fa.actor_id
+	INNER JOIN film AS f
+		ON fa.film_id = f.film_id
+	WHERE a.actor_id IN (SELECT actor_id										-- saco las ids de los actores de esas peliculas										
+							FROM film_actor AS fa
+							INNER JOIN film AS f
+								ON fa.film_id= f.film_id
+							WHERE fa.film_id = (SELECT film_id					-- saco las ids de las peliculas con el titulo indian love
+													FROM film
+													WHERE title LIKE ("%Indian Love%"))
+						);
     
+-- 14. Muestra el título de todas las películas que contengan la palabra "dog" o "cat" en su descripción.
+	-- USO regexp para simplificar código en lugar del LIKE.
+    
+SELECT title AS "Titulo película"
+	FROM film
+	WHERE title REGEXP 'dog|cat';
+    
+
     
     
