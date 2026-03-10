@@ -207,13 +207,13 @@ SELECT CONCAT(a.first_name," ", a.last_name) AS "Actor", COUNT(fa.film_id) AS "P
     
 -- 	DATEDIFF(return_date, rental_date) usamos esta función para la subconsulta.
     
-    SELECT DISTINCT title AS "Nombre película"
-		FROM film AS f
-		INNER JOIN inventory AS i
-			ON F.film_id = i.film_id
-		INNER JOIN rental AS r
-			ON i.inventory_id = r.inventory_id
-		WHERE r.rental_id IN (SELECT rental_id
+SELECT DISTINCT title AS "Nombre película"
+	FROM film AS f
+	INNER JOIN inventory AS i
+		ON f.film_id = i.film_id
+	INNER JOIN rental AS r
+		ON i.inventory_id = r.inventory_id
+	WHERE r.rental_id IN (SELECT rental_id
 								FROM rental
 								WHERE  DATEDIFF(return_date, rental_date) > 5);
                                  
@@ -222,16 +222,48 @@ SELECT CONCAT(a.first_name," ", a.last_name) AS "Actor", COUNT(fa.film_id) AS "P
 "Horror". Utiliza una subconsulta para encontrar los actores que han actuado en películas de la
 categoría "Horror" y luego exclúyelos de la lista de actores.*/
 
+	-- saco la id de la categoria horror
+SELECT category_id
+	FROM category
+    WHERE name = "Horror"; -- id de horror
+    
+    -- saco las id de peliculas de terror
+SELECT fc.film_id
+	FROM film_category AS fc
+	INNER JOIN category AS c
+    WHERE fc.category_id = (SELECT category_id
+								FROM category
+								WHERE name = "Horror"); -- id de horror)
+                            
+	-- unifico la consulta con las subconsultas. DISTINCT para no sacar nombres repetidos.
+SELECT DISTINCT a.first_name AS "Nombre", a.last_name AS "Apellido", a.actor_id
+	FROM actor AS a
+    INNER JOIN film_actor AS fa
+		ON a.actor_id = fa.actor_id
+	WHERE fa.film_id NOT IN (SELECT fc.film_id
+									FROM film_category AS fc
+									INNER JOIN category AS c
+									WHERE fc.category_id = (SELECT category_id
+																FROM category
+																WHERE name = "Horror"));
+    
+
 -- 24. Encuentra el título de las películas que son comedias y tienen una duración mayor a 180 minutos en la tabla film.
 
+	-- querys previas -- 
 SELECT title, length
 	FROM film
-    INNER JOIN
-		WHERE length > 180; -- consulta condición
+	WHERE length > 180; -- consulta condición mayor a 180 minutos
         
 SELECT category_id
 	FROM category
-    WHERE name = "Comedy"; -- id de comedia
+    WHERE name = "Comedy"; -- consulta condición id de comedia 
     
-    
-    
+-- QUERY FINAL --  
+SELECT title, length
+	FROM film AS f
+    INNER JOIN film_category AS fc
+		ON f.film_id = fc.film_id
+	WHERE f.length > 180 AND fc.category_id = (SELECT category_id
+													FROM category
+													WHERE name = "Comedy"); -- consulta condición
